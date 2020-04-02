@@ -2,10 +2,19 @@
 统一发送消息队列
 
 ## 用法
-### 1.安装依赖及执行迁移
+### 1.安装及配置
+#### 1.1安装依赖及执行迁移
 ```shell script
 composer require quansitech/send-msg
 php artisan migrate
+```
+
+#### 1.2配置及启动队列
+在后台中新增消息模板，地址 http://[host]:[port]/admin/MsgTpl/add 或写迁移文件进行添加，建议写迁移文件<br>
+启动队列wx(微信)和sms(短信)
+```shell script
+php resque start --queue=wx #微信消息
+php resque start --queue=sms #短信消息
 ```
 
 ### 2.在项目中新建一个消息内容转换器，需继承[BaseMsgTemplateParse]，然后加上要转换的所有方法 
