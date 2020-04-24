@@ -18,7 +18,7 @@ class JobDataParser
                 if (!$msgData[$jobData['data']['contentField']]){
                     $msgData[$jobData['data']['contentField']]=['color'=>'#173177'];
                 }
-                if (!$content['wx']){
+                if (!$content['wx'] || !$jobData['data']['openid']){
                     $job='';
                     break;
                 }
@@ -31,7 +31,7 @@ class JobDataParser
                 break;
             case 'sms':
                 $job='QsSendMsg\\Job\\SendSmsMsgJob';
-                if (!$content['sms']){
+                if (!$content['sms'] || !$jobData['data']['mobile']){
                     $job='';
                     break;
                 }
