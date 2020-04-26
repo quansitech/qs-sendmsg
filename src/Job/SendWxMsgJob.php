@@ -30,6 +30,12 @@ class SendWxMsgJob extends BaseJob {
         $args = $this->args;
 
         try {
+
+            $user = $this->app->user->get($args['open_id']);
+            if (!$user['subscribe']){
+                E('no subscribe');
+            }
+
             $res=$this->app->template_message->send([
                 'touser' => $args['open_id'],
                 'template_id' => $args['template_id'],
@@ -38,6 +44,7 @@ class SendWxMsgJob extends BaseJob {
             ]);
 
             //{"errcode":0,"errmsg":"ok","msgid":1253912252621750272}
+
             if ($res['errmsg']=='ok'){
                 $data['id'] = $res['msgid'];
                 $data['openid'] = $args['open_id'];
@@ -51,9 +58,9 @@ class SendWxMsgJob extends BaseJob {
             }
 
         } catch (\Exception $e) {
-            E($e->getMessage());
+            throw $e;
         } catch (GuzzleException $e) {
-            E($e->getMessage());
+            throw new \Exception($e);
         }
 
     }

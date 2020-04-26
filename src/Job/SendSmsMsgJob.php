@@ -34,7 +34,7 @@ class SendSmsMsgJob extends BaseJob {
                 echo 'SendSmsJob finish!';
             }
         }catch (Exception $e){
-            E($e->getMessage());
+            throw new \Exception($e->getMessage());
         }
 
     }
