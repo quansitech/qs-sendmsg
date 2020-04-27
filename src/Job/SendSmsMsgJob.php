@@ -67,6 +67,7 @@ class SendSmsMsgJob extends BaseJob {
                     'content' => $content
                 ]);
             }
+            return $res;
         }catch (NoGatewayAvailableException $exception){
             $this->error=$exception->getLastException();
             if ($this->error){
