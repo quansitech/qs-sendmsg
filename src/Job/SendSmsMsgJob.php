@@ -6,36 +6,72 @@ namespace QsSendMsg\Job;
  * and open the template in the editor.
  */
 
+use Overtrue\EasySms\EasySms;
+use Overtrue\EasySms\Exceptions\NoGatewayAvailableException;
+use QsSendMsg\Job\SmsGateway\QiruiGateway;
 use Think\Exception;
+use Think\Log;
 
 class SendSmsMsgJob extends BaseJob {
-    
-    public function perform(){
-        $args = $this->args;
-        //todo 重写发送短信方式
+    private $_easySms;
+
+    public function __construct()
+    {
+        $config = [
+            // HTTP 请求的超时时间（秒）
+            'timeout' => 5.0,
+
+            // 默认发送配置
+            'default' => [
+                // 网关调用策略，默认：顺序调用
+                'strategy' => \Overtrue\EasySms\Strategies\OrderStrategy::class,
+
+                // 默认可用的发送网关
+                'gateways' => [
+                    'qirui',//http://www.qirui.com/
+                ],
+            ],
+            // 可用的网关配置
+            'gateways' => [
+                'errorlog' => [
+                    'file' => '/tmp/easy-sms.log',
+                ],
+                'qirui' => [
+                    'api_key' => env('QIRUI_API_KEY'),
+                    'api_secret' => env('QIRUI_API_SECRET'),
+                ],
+                //...
+            ],
+        ];
+        $this->_easySms=new EasySms($config);
+
+        //注册启瑞云网关
+        $this->_easySms->extend('qirui',function ($config){
+            return new QiruiGateway($config);
+        });
+
+    }
+
+    public function send($para){
+        $mobile=$para['mobile'];
+        $content=$para['content'];
         try {
-            $para['content'] = $args['content'];
-            if (trim($para['content'])) {
-                $para['mobile'] = $args['mobile'];
-                \Think\Hook::listen('sendSmsOnce', $para);
+            if (trim($content) && $mobile) {
+                $res=$this->_easySms->send($mobile, [
+                    'content' => $content,
+                ]);
+                Log::write(json_encode($res),'send_qirui_sms');
 
-                $return = $para['return'];
-
-                if ($return['status'] == 1) {
-                    D('SmsLog')->add([
-                        'mobile'=>$para['mobile'],
-                        'content'=>$para['content']
-                    ]);
-                } else {
-                    E($return['err_msg']);
-
-                }
-
-                echo 'SendSmsJob finish!';
+                D('SmsLog')->add([
+                    'mobile' => $mobile,
+                    'content' => $content
+                ]);
             }
-        }catch (Exception $e){
-            throw new \Exception($e->getMessage());
+        }catch (NoGatewayAvailableException $exception){
+            $this->error=$exception->getLastException();
+            if ($this->error){
+                $this->error=$this->error->getMessage();
+            }
         }
-
     }
 }

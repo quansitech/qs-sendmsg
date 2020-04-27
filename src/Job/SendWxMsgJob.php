@@ -26,42 +26,40 @@ class SendWxMsgJob extends BaseJob {
         $this->app = Factory::officialAccount($config);
     }
 
-    public function perform(){
-        $args = $this->args;
-
+    public function send($para)
+    {
         try {
-
-            $user = $this->app->user->get($args['open_id']);
+            $user = $this->app->user->get($para['open_id']);
             if (!$user['subscribe']){
                 E('no subscribe');
             }
 
             $res=$this->app->template_message->send([
-                'touser' => $args['open_id'],
-                'template_id' => $args['template_id'],
-                'url' => $args['url'],
-                'data' => $args['data'],
+                'touser' => $para['open_id'],
+                'template_id' => $para['template_id'],
+                'url' => $para['url'],
+                'data' => $para['data'],
             ]);
 
             //{"errcode":0,"errmsg":"ok","msgid":1253912252621750272}
-
             if ($res['errmsg']=='ok'){
                 $data['id'] = $res['msgid'];
-                $data['openid'] = $args['open_id'];
-                $data['description'] = $args['desc'];
+                $data['openid'] = $para['open_id'];
+                $data['description'] = $para['desc'];
                 $data['create_date'] = time();
 
                 D('WxMsg')->add($data);
-                echo 'SendWeixinMsgJob finish! weixin msg_id=' . $res['msgid'] . '\n';
+                return $res;
             }else{
                 E($res['errmsg']);
             }
 
         } catch (\Exception $e) {
-            throw $e;
+            $this->error=$e->getMessage();
+            return false;
         } catch (GuzzleException $e) {
-            throw new \Exception($e);
+            $this->error=$e->getMessage();
+            return false;
         }
-
     }
 }

@@ -13,7 +13,8 @@
   "require": {
     "php": ">=7.2.0",
     "tiderjian/think-core": ">=9.0",
-    "overtrue/wechat": "~4.0"
+    "overtrue/wechat": "~4.0",
+    "overtrue/easy-sms": "^1.1"
   },
   "autoload": {
   	"psr-4": {
@@ -25,6 +26,9 @@
       "providers": [
         "QsSendMsg\\SendMsgProvider"
       ]
+    },
+    "branch-alias":{
+      "dev-master":"1.0.x-dev"
     }
   }
 }

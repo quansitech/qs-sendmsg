@@ -159,10 +159,15 @@ class SendMsgJobBuilder
     }
 
     public static function nextJob($next_job_list){
-        $jobData=array_shift($next_job_list);
-        $content=$jobData['content'];
-        list($job,$args)=JobDataParser::parse($jobData,$content,$next_job_list);
-        self::getInstance()->addQueue($args,$job,$args['desc'],$jobData['type']);
+        do {
+            if (!$next_job_list){
+                return;
+            }
+            $jobData = array_shift($next_job_list);
+            $content = $jobData['content'];
+            list($job, $args) = JobDataParser::parse($jobData, $content, $next_job_list);
+        }while($job);
+        self::getInstance()->addQueue($args, $job, $args['desc'], $jobData['type']);
     }
 
     /**
