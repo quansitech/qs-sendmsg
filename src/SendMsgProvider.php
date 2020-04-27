@@ -14,11 +14,6 @@ class SendMsgProvider implements Provider,LaravelProvider
 {
     public function register()
     {
-        Hook::import([
-            'app_init'=>[
-                'QsSendMsg\\Behavior\\ListenFailureBehavior'
-            ]
-        ]);
         //注册Controller
         RegisterContainer::registerController('admin','MsgTpl',MsgTplController::class);
     }

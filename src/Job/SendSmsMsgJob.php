@@ -39,6 +39,7 @@ class SendSmsMsgJob extends BaseJob {
                 'qirui' => [
                     'api_key' => env('QIRUI_API_KEY'),
                     'api_secret' => env('QIRUI_API_SECRET'),
+                    'sign_text' => env('QIRUI_SIGN')
                 ],
                 //...
             ],
@@ -60,7 +61,6 @@ class SendSmsMsgJob extends BaseJob {
                 $res=$this->_easySms->send($mobile, [
                     'content' => $content,
                 ]);
-                Log::write(json_encode($res),'send_qirui_sms');
 
                 D('SmsLog')->add([
                     'mobile' => $mobile,
@@ -73,6 +73,10 @@ class SendSmsMsgJob extends BaseJob {
             if ($this->error){
                 $this->error=$this->error->getMessage();
             }
+            return false;
+        }catch (\Exception $e){
+            $this->error=$e->getMessage();
+            return false;
         }
     }
 }

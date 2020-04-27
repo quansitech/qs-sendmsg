@@ -30,7 +30,6 @@ class SendMsgJobBuilder
 
     public function addQueue($param, $job, $description, $queue = 'default')
     {
-
         $job_id = Resque::enqueue($queue, $job, $param, true);
 
         $data['id'] = $job_id;
@@ -158,15 +157,14 @@ class SendMsgJobBuilder
         return $this;
     }
 
-    public static function nextJob($next_job_list){
+    public static function nextJob($next_job_list,$content){
         do {
             if (!$next_job_list){
                 return;
             }
             $jobData = array_shift($next_job_list);
-            $content = $jobData['content'];
             list($job, $args) = JobDataParser::parse($jobData, $content, $next_job_list);
-        }while($job);
+        }while(!$job);
         self::getInstance()->addQueue($args, $job, $args['desc'], $jobData['type']);
     }
 

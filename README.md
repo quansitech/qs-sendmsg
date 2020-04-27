@@ -17,6 +17,19 @@ php resque start --queue=wx #微信消息
 php resque start --queue=sms #短信消息
 ```
 
+#### 1.3配置发送的API设置
+```env
+# 微信公众号
+WX_APPID=
+WX_APPSECRET=
+
+# 启瑞云短信
+QIRUI_API_KEY=
+QIRUI_API_SECRET=
+# 签名（即短信开头）
+QIRUI_SIGN=
+```
+
 ### 2.在项目中新建一个消息内容转换器，需继承[BaseMsgTemplateParse]，然后加上要转换的所有方法 
 ```php
 class MsgTemplateParse extends BaseMsgTemplateParse {
@@ -67,4 +80,15 @@ $builder->dispatchAll();
 ```php
 /** @var $builder \QsSendMsg\SendMsgJobBuilder 第4步的$builder*/
 $builder->dispatch();
+```
+
+## 升级
+### 1.0升级至2.0
+在.env文件下增加配置项
+```env
+# 启瑞云短信
+QIRUI_API_KEY=
+QIRUI_API_SECRET=
+# 签名（即短信开头）
+QIRUI_SIGN=
 ```

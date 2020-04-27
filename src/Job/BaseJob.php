@@ -18,10 +18,10 @@ abstract class BaseJob
     public function perform(){
         $res=$this->send($this->args);
         if ($res===false){
+            Log::write('job error:::'.$this->error.'--args:'.json_encode($this->args),'send_msg_error');
             if ($this->args['next_job_list']){
-                SendMsgJobBuilder::nextJob($this->args['next_job_list']);
+                SendMsgJobBuilder::nextJob($this->args['next_job_list'],$this->args['msg_content']);
             }
-            Log::write('job error:::'.$this->error,'send_sms_error');
             return;
         }
         $class=get_called_class();

@@ -9,7 +9,7 @@ class JobDataParser
     public static function parse($jobData, $content, $nextJobList){
         $args=[
             'next_job_list'=>$nextJobList,
-            'content'=>$content,
+            'msg_content'=>$content,
             'desc'=>$jobData['data']['desc']
         ];
         switch ($jobData['type']){
