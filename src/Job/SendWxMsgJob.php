@@ -8,6 +8,7 @@ namespace QsSendMsg\Job;
 
 use EasyWeChat\Factory;
 use GuzzleHttp\Exception\GuzzleException;
+use QsSendMsg\SendMsgJobBuilder;
 
 class SendWxMsgJob extends BaseJob {
 
@@ -31,7 +32,10 @@ class SendWxMsgJob extends BaseJob {
         try {
             $user = $this->app->user->get($para['open_id']);
             if (!$user['subscribe']){
-                E('no subscribe');
+                if ($para['next_job_list']){
+                    SendMsgJobBuilder::nextJob($para['next_job_list'],$para['msg_content']);
+                }
+                return $user;
             }
 
             $res=$this->app->template_message->send([
