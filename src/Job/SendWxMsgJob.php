@@ -27,15 +27,26 @@ class SendWxMsgJob extends BaseJob {
         $this->app = Factory::officialAccount($config);
     }
 
+    /**
+     * @param $para array 消息参数
+     * [
+     *      'open_id'=>'微信openid',
+     *      'template_id'=>'微信模板消息ID',
+     *      'url'=>'跳转地址',
+     *      'data'=>'消息内容'
+     * ]
+     * @return array|\EasyWeChat\Kernel\Support\Collection|false|object|\Psr\Http\Message\ResponseInterface|string
+     */
     public function send($para)
     {
         try {
             $user = $this->app->user->get($para['open_id']);
             if (!$user['subscribe']){
-                if ($para['next_job_list']){
-                    SendMsgJobBuilder::nextJob($para['next_job_list'],$para['msg_content']);
-                }
-                return $user;
+//                if ($para['next_job_list']){
+//                    SendMsgJobBuilder::nextJob($para['next_job_list'],$para['msg_content']);
+//                }
+                $this->error='需要关注公众号';
+                return false;
             }
 
             $res=$this->app->template_message->send([

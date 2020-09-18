@@ -37,6 +37,7 @@ class JobDataParser
                 }
                 $args['mobile']=$jobData['data']['mobile'];
                 $args['content']=$content['sms'];
+                $args=array_merge($args,(array)$jobData['data']['data_options']);
                 break;
         }
         return [$job,$args];

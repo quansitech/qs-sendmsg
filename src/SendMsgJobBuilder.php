@@ -19,9 +19,7 @@ class SendMsgJobBuilder
         'sms'=>'sms'
     ];
 
-    private $_config=[
-
-    ];
+    private $_config=[];
 
     private $_msgTplName;
     private $_msgTplArgs;
@@ -54,11 +52,18 @@ class SendMsgJobBuilder
         return ['sms'=>$sms_content,'wx'=>$wx_content];
     }
 
-    public function addSmsMsgJob($mobile,$desc=''){
+    /**
+     * @param $mobile
+     * @param string $desc
+     * @param array $data_options
+     * @return $this
+     */
+    public function addSmsMsgJob($mobile,$desc='',$data_options=[]){
         $this->_jobDataList[]=[
             'type'=>'sms',
             'data'=>[
                 'mobile'=>$mobile,
+                'data_options'=>$data_options,
                 'desc'=>$desc
             ]
         ];

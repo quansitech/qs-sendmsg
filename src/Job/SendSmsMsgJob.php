@@ -8,6 +8,7 @@ namespace QsSendMsg\Job;
 
 use Overtrue\EasySms\EasySms;
 use Overtrue\EasySms\Exceptions\NoGatewayAvailableException;
+use Overtrue\EasySms\Gateways\Gateway;
 use QsSendMsg\Job\SmsGateway\QiruiGateway;
 use Think\Exception;
 use Think\Log;
@@ -28,7 +29,6 @@ class SendSmsMsgJob extends BaseJob {
 
                 // 默认可用的发送网关
                 'gateways' => [
-                    'qirui',//http://www.qirui.com/
                 ],
             ],
             // 可用的网关配置
@@ -36,14 +36,25 @@ class SendSmsMsgJob extends BaseJob {
                 'errorlog' => [
                     'file' => '/tmp/easy-sms.log',
                 ],
-                'qirui' => [
-                    'api_key' => env('QIRUI_API_KEY'),
-                    'api_secret' => env('QIRUI_API_SECRET'),
-                    'sign_text' => env('QIRUI_SIGN')
-                ],
-                //...
             ],
         ];
+        //可添加其它easysms自带的gateway
+        if (C('SEND_MSG_SMS_GATEWAY',null,false)){
+            foreach (C('SEND_MSG_SMS_GATEWAY') as $gateway=>$item) {
+                $config['default']['gateways'][]=$gateway;
+                $config['gateways'][$gateway]=$item;
+            }
+        }else{
+            //默认使用启瑞云
+            $config['default']['gateways']=['qirui'];
+            $config['gateways']['qirui']=[
+                'api_key' => env('QIRUI_API_KEY'),
+                'api_secret' => env('QIRUI_API_SECRET'),
+                'sign_text' => env('QIRUI_SIGN')
+            ];
+
+        }
+
         $this->_easySms=new EasySms($config);
 
         //注册启瑞云网关
@@ -53,15 +64,32 @@ class SendSmsMsgJob extends BaseJob {
 
     }
 
+    /**
+     * 直接发送短信消息
+     * @param $para array 消息参数
+     * [
+     *      'mobile'=>'手机号',
+     *      'content'=>'短信内容',
+     *      ... //其它easysms参数
+     * ]
+     * @return array|false
+     */
     public function send($para){
+        unset($para['next_job_list']);
+        unset($para['msg_content']);
+        unset($para['desc']);
+
         $mobile=$para['mobile'];
         $content=$para['content'];
         try {
             if (trim($content) && $mobile) {
-                $res=$this->_easySms->send($mobile, [
-                    'content' => $content,
-                ]);
-
+                unset($para['mobile']);
+                if (is_string($content)){
+                    $para['content']=function (Gateway $gateway) use ($content){
+                        return $gateway->getConfig()->get('sign_text').$content;
+                    };
+                }
+                $res = $this->_easySms->send($mobile, $para);
                 D('SmsLog')->add([
                     'mobile' => $mobile,
                     'content' => $content

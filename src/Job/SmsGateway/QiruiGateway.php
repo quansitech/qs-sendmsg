@@ -95,7 +95,7 @@ class QiruiGateway extends Gateway
         $requestData = array(
             'un' => $config->get('api_key'),
             'pw' => $config->get('api_secret'),
-            'sm' => $config->get('sign_text').$message->getContent($this),
+            'sm' => $message->getContent($this),
             'da' => $to->getUniversalNumber(),
             'rd' => 1,
             'dc' => 15,

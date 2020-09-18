@@ -1,7 +1,7 @@
 # qs-sendmsg
 统一发送消息队列
 
-## 用法
+## 队列发送用法
 ### 1.安装及配置
 #### 1.1安装依赖及执行迁移
 ```shell script
@@ -9,25 +9,42 @@ composer require quansitech/send-msg
 php artisan migrate
 ```
 
-#### 1.2配置及启动队列
-在后台中新增消息模板，地址 http://[host]:[port]/admin/MsgTpl/add 或写迁移文件进行添加，建议写迁移文件<br>
-启动队列wx(微信)和sms(短信)
-```shell script
-php resque start --queue=wx #微信消息
-php resque start --queue=sms #短信消息
-```
-
-#### 1.3配置发送的API设置
+#### 1.2配置发送的API设置
+##### 微信公众号发模板消息
 ```env
 # 微信公众号
 WX_APPID=
 WX_APPSECRET=
+```
 
+##### 手机短信api
+###### 方案1，采用启瑞云/中国短信网
+```env
 # 启瑞云短信
 QIRUI_API_KEY=
 QIRUI_API_SECRET=
 # 签名（即短信开头）
 QIRUI_SIGN=
+```
+###### 方案2，采用其它api，详细配置请查看 [easysms配置](https://github.com/overtrue/easy-sms)
+在/app/Common/Conf/config.php中加入以下代码
+```php
+'SEND_MSG_SMS_GATEWAY'=> [
+    //云片
+    'yunpian'=>[
+        'api_key'=>'27f03185cb9b6e1a4f274b*******',
+        'sign_text'=>'【云片签名】'
+    ],
+],
+```
+
+
+#### 1.3配置及启动队列
+在后台中新增消息模板，地址 http://[host]:[port]/admin/MsgTpl/add 或写迁移文件进行添加，建议写迁移文件<br>
+启动队列wx(微信)和sms(短信)
+```shell script
+php resque start --queue=wx #微信消息
+php resque start --queue=sms #短信消息
 ```
 
 ### 2.在项目中新建一个消息内容转换器，需继承[BaseMsgTemplateParse]，然后加上要转换的所有方法 
@@ -82,6 +99,29 @@ $builder->dispatchAll();
 $builder->dispatch();
 ```
 
+## 即时发送用法
+根据队列用法1.1步骤，1.2步骤配置后即可使用
+### 微信公众号模板消息发送
+```php
+$job = new \QsSendMsg\Job\SendWxMsgJob();
+$r=$job->send([
+    'open_id'=>'微信openid',
+    'template_id'=>'微信模板消息ID',
+    'url'=>'跳转地址',
+    'data'=>'消息内容'
+]);
+```
+### 手机短信发送
+```php
+$job = new \QsSendMsg\Job\SendSmsMsgJob();
+$r=$job->send([
+    'mobile'=>'手机号',
+    'content'=>'短信内容',
+    //...其它参数
+]);
+```
+发送失败时$r为false，可查看$job->error错误信息
+
 ## 升级
 ### 1.0升级至2.0
 在.env文件下增加配置项
@@ -91,4 +131,16 @@ QIRUI_API_KEY=
 QIRUI_API_SECRET=
 # 签名（即短信开头）
 QIRUI_SIGN=
+```
+
+### 2.1版本后支持自定义短信发送渠道（默认还是采用启瑞云/中国短信网发送）
+需要在config文件中加入以下内容
+```php
+'SEND_MSG_SMS_GATEWAY'=> [
+    //云片
+    'yunpian'=>[
+        'api_key'=>'27f03185cb9b6e1a4f274b*******',
+        'sign_text'=>'【云片签名】'
+    ],
+],
 ```
