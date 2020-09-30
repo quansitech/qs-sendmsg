@@ -72,6 +72,8 @@ class MsgTplController extends GyListController{
             $view->assign('menu_list',$this->menu_list);
             $view->assign('nid',$action_ent['id']);
             $view->assign('meta_title','编辑消息模板');
+            $view->assign('top_menu',$this->top_menu);
+            $view->assign('current_module', strtolower(MODULE_NAME));
             $view->display(__DIR__.'/../View/edit.html');
         }
     }
