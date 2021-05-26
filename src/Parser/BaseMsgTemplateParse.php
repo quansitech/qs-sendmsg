@@ -8,7 +8,7 @@ class BaseMsgTemplateParse{
         '测试名称' => 'parseTestName',
     );
     
-    static final public function parse($args, $content){
+    static public function parse($args, $content){
         while(preg_match('/\[#(.+?)#\]/i', $content, $matches)){
             $key = $matches[1];
 
