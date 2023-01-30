@@ -12,7 +12,7 @@
   "minimum-stability": "dev",
   "require": {
     "php": ">=7.2.0",
-    "tiderjian/think-core": ">=9.0",
+    "tiderjian/think-core": ">=12.0",
     "overtrue/wechat": "~4.0",
     "overtrue/easy-sms": "^1.1"
   },

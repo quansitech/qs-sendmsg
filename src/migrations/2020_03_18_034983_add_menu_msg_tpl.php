@@ -22,7 +22,7 @@ class AddMenuMsgTpl extends Migration
      */
     public function up()
     {
-        $menuGenerate=new \Larafortp\MenuGenerate();
+        $menuGenerate=new \Qscmf\Utils\MigrationHelper\MenuGenerate();
         $menuGenerate->insertAll($this->_upMenuData);
     }
 
@@ -33,7 +33,7 @@ class AddMenuMsgTpl extends Migration
      */
     public function down()
     {
-        $menuGenerate=new \Larafortp\MenuGenerate();
+        $menuGenerate=new \Qscmf\Utils\MigrationHelper\MenuGenerate();
         $menuGenerate->insertAllRollback($this->_upMenuData);
     }
 }
